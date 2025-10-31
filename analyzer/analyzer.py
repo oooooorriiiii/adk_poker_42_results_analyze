@@ -4,6 +4,7 @@ import re
 import json
 import plotly.express as px
 import os
+import glob
 from collections import defaultdict
 
 # Streamlitのキャッシュ機能で、ファイル読み込みと解析を高速化します
@@ -152,12 +153,43 @@ def main():
     st.set_page_config(layout="wide")
     st.title("🃏 ポーカーAIログ分析ツール")
 
-    LOG_FILE = "poker_game_20251031_184427_838e.log"
+    # LOG_FILE = "poker_game_20251031_184427_838e.log"
     
-    if not os.path.exists(LOG_FILE):
-        st.error(f"エラー: ログファイル '{LOG_FILE}' が見つかりません。")
-        st.info(f"スクリプト (`poker_analyzer.py`) と同じディレクトリに '{LOG_FILE}' を配置してください。")
+    # if not os.path.exists(LOG_FILE):
+    #     st.error(f"エラー: ログファイル '{LOG_FILE}' が見つかりません。")
+    #     st.info(f"スクリプト (`poker_analyzer.py`) と同じディレクトリに '{LOG_FILE}' を配置してください。")
+    #     st.stop()
+
+    try:
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+    except NameError:
+        # Streamlitが 'Bare script' モードなどで __file__ を定義しない場合
+        script_dir = os.getcwd() # カレントワーキングディレクトリを代替として使用
+        
+    # 同じディレクトリにある .log ファイルをすべて検索
+    log_files = glob.glob(os.path.join(script_dir, "*.log"))
+    
+    LOG_FILE = None
+    
+    if not log_files:
+        st.error(f"エラー: スクリプトと同じディレクトリ ({script_dir}) に .log ファイルが見つかりません。")
+        st.info("ログファイルを `analyzer.py` と同じフォルダに配置してください。")
         st.stop()
+        
+    elif len(log_files) == 1:
+        # ログファイルが1つだけ見つかった場合、それを自動的に使用
+        LOG_FILE = log_files[0]
+        st.info(f"ログファイル: `{os.path.basename(LOG_FILE)}` を自動的に検出しました。")
+    
+    else:
+        # ログファイルが複数見つかった場合、ユーザーに選択させる
+        st.warning("複数の .log ファイルが検出されました。分析するファイルを選択してください。")
+        # ファイル名だけを表示（フルパスではなく）
+        log_file_names = [os.path.basename(f) for f in log_files]
+        selected_log_name = st.selectbox("ログファイルを選択:", log_file_names)
+        
+        # 選択されたファイル名からフルパスを復元
+        LOG_FILE = os.path.join(script_dir, selected_log_name)
 
     df = load_log_data(LOG_FILE)
 

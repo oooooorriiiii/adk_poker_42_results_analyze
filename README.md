@@ -30,14 +30,25 @@
 ```
 (Project Root)/
 ├── analyzer/
-│   ├── analyzer.py  (← このスクリプト)
-│   └── poker_game_20251031_184427_838e.log (← ここにログを配置)
+│   ├── analyzer.py  (← このスクリプト)
+│   └── poker_game_20251031_184427_838e.log (← ここにログを配置)
+├── pyproject.toml
+├── uv.lock
 └── README.md
 ```
 
 ### 2\. ライブラリのインストール
 
 ターミナル（コマンドプロンプト）を開き、以下のコマンドを実行して必要なライブラリをインストールします。
+
+#### `uv` の場合
+
+```bash
+# uv.lock に基づいてパッケージを同期 (インストール)
+uv sync
+```
+
+#### `pip` の場合
 
 ```bash
 pip install streamlit pandas plotly
@@ -46,6 +57,18 @@ pip install streamlit pandas plotly
 ### 3\. ツールの実行
 
 `analyzer` フォルダに移動し、`streamlit run` コマンドでスクリプトを実行します。
+
+
+#### `uv` の場合
+
+```bash
+cd analyzer
+
+# プロジェクトルートから analyzer/analyzer.py を実行
+uv run streamlit run analyzer.py
+```
+
+#### `pip` の場合
 
 ```bash
 # analyzer フォルダに移動
@@ -57,6 +80,9 @@ streamlit run analyzer.py
 
 実行後、自動的にWebブラウザが起動し、分析ダッシュボードが表示されます。
 （表示されない場合は、ターミナルに表示される `Local URL` (例: `http://localhost:8501`) をブラウザにコピーしてください）
+
+同じディレクトリに .log ファイルが1つだけある場合、自動的にそのファイルが読み込まれます。
+`.log` ファイルが複数ある場合、ダッシュボードの上部にファイルを選択するドロップダウンメニューが表示されます。
 
 ## ダッシュボードの機能
 
