@@ -1,13 +1,3 @@
-# adk_poker_42_results_analyze
-
-- 10311910
-  - https://github.com/oooooorriiiii/adk_poker_42/commit/8bcd6edad3bba9112235e1db523273268fb57415
-
-はい、承知いたしました。
-`analyzer/analyzer.py` のための `README.md` を作成します。
-
------
-
 # ポーカーAIログ分析ツール (Poker AI Log Analyzer)
 
 `analyzer/analyzer.py` は、ポーカーゲームのログファイルを解析し、[Streamlit](https://streamlit.io/) を使用してWebブラウザ上でグラフィカルに表示・分析するためのツールです。
