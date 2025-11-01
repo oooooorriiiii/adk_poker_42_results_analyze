@@ -31,7 +31,10 @@
 (Project Root)/
 ├── analyzer/
 │   ├── analyzer.py  (← このスクリプト)
+│   ├── 1031/  (← ログのディレクトリ)
+│   │   └── poker_game_20251031_184427_xxxx.log (← ここにログを配置)
 │   └── poker_game_20251031_184427_838e.log (← ここにログを配置)
+|
 ├── pyproject.toml
 ├── uv.lock
 └── README.md
