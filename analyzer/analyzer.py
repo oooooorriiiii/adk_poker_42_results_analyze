@@ -166,29 +166,50 @@ def main():
         # Streamlitが 'Bare script' モードなどで __file__ を定義しない場合
         script_dir = os.getcwd() # カレントワーキングディレクトリを代替として使用
         
-    # 同じディレクトリにある .log ファイルをすべて検索
-    log_files = glob.glob(os.path.join(script_dir, "*.log"))
+    # パターン1: スクリプトと同じディレクトリにある .log ファイル
+    pattern1_files = glob.glob(os.path.join(script_dir, "*.log"))
+
+    # パターン2: スクリプトと同じディレクトリにある「サブディレクトリ」内の .log ファイル (1階層のみ)
+    pattern2_files = []
+    # script_dir直下のすべてのアイテム（ファイルやディレクトリ）を取得
+    sub_items = glob.glob(os.path.join(script_dir, "*"))
+
+    for item_path in sub_items:
+        # アイテムがディレクトリ（フォルダ）であった場合のみ
+        if os.path.isdir(item_path):
+            # そのディレクトリ内の .log ファイルを検索
+            logs_in_subdir = glob.glob(os.path.join(item_path, "*.log"))
+            pattern2_files.extend(logs_in_subdir)
+
+    # 2つのリストを結合し、重複を排除（ソートして順序を安定）
+    log_files = sorted(list(set(pattern1_files + pattern2_files)))
     
     LOG_FILE = None
     
     if not log_files:
-        st.error(f"エラー: スクリプトと同じディレクトリ ({script_dir}) に .log ファイルが見つかりません。")
-        st.info("ログファイルを `analyzer.py` と同じフォルダに配置してください。")
+        st.error(f"エラー: スクリプトと同じディレクトリ ({script_dir}) またはその直下のサブディレクトリに .log ファイルが見つかりません。")
+        st.info("ログファイルを `analyzer.py` と同じフォルダ、または `analyzer.py` と同じ階層のフォルダ（例: `11011010/`）内に配置してください。")
         st.stop()
-        
+
     elif len(log_files) == 1:
         # ログファイルが1つだけ見つかった場合、それを自動的に使用
         LOG_FILE = log_files[0]
-        st.info(f"ログファイル: `{os.path.basename(LOG_FILE)}` を自動的に検出しました。")
-    
+        
+        # 表示する際はフルパスではなく、スクリプトディレクトリからの相対パスにする
+        display_name = os.path.relpath(LOG_FILE, script_dir)
+        st.info(f"ログファイル: `{display_name}` を自動的に検出しました。")
+
     else:
         # ログファイルが複数見つかった場合、ユーザーに選択させる
         st.warning("複数の .log ファイルが検出されました。分析するファイルを選択してください。")
-        # ファイル名だけを表示（フルパスではなく）
-        log_file_names = [os.path.basename(f) for f in log_files]
+
+        # script_dirからの相対パスを表示（サブディレクトリを区別するため）
+        log_file_names = [os.path.relpath(f, script_dir) for f in log_files]
+        # (log_files自体をソート済みなので、log_file_namesもソート済みのはず)
+        
         selected_log_name = st.selectbox("ログファイルを選択:", log_file_names)
         
-        # 選択されたファイル名からフルパスを復元
+        # 選択されたファイル名（相対パス）からフルパスを復元
         LOG_FILE = os.path.join(script_dir, selected_log_name)
 
     df = load_log_data(LOG_FILE)
